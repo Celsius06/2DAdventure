@@ -15,7 +15,7 @@ public class Player extends Entity {
     KeyHandler keyH;
     public final int screenX;
     public final int screenY;
-    int hasKey = 0;
+    public int hasKey = 0;
 
     public Player(GamePanel gp, KeyHandler keyH){
         this.gp = gp;
@@ -47,9 +47,9 @@ public class Player extends Entity {
             up2=ImageIO.read(new File("res/player/FroGi_up2.png"));
             down1=ImageIO.read(new File("res/player/FroGi_down1.png"));
             down2=ImageIO.read(new File("res/player/FroGi_down2.png"));
-            left1=ImageIO.read(new File("res/player/FroGi_Left1.png"));
+            left1=ImageIO.read(new File("res/player/FroGi_left3.png"));
             left2=ImageIO.read(new File("res/player/FroGi_left2.png"));
-            right1=ImageIO.read(new File("res/player/FroGi_right1.png"));
+            right1=ImageIO.read(new File("res/player/FroGi_right3.png"));
             right2=ImageIO.read(new File("res/player/FroGi_right2.png"));
 
         } catch(IOException e) {
@@ -114,22 +114,36 @@ public class Player extends Entity {
     public void pickupObject(int i) {
         if (i != 999) {
             String objectName = gp.obj[i].name;
+            
             switch (objectName) {
                 case "Key":
+                	gp.playSE(1);
                     hasKey++;
                     gp.obj[i] = null;
-                    System.out.println("Key picked up! Keys: " + hasKey);
+                    gp.ui.showMessage("You picked up a key!");
                     break;
                 case "Door":
                     if (hasKey > 0) {
+                    	gp.playSE(3);
                         gp.obj[i] = null;
                         hasKey--;
-                        System.out.println("Door unlocked! Keys remaining: " + hasKey);
+                        gp.ui.showMessage("You opened a door!");
                     } else {
-                        System.out.println("You need a key to unlock the door. Keys: " + hasKey);
+                    	gp.ui.showMessage("You need a key to open this door!");
                     }
                     break;
-            }
+                case "Boots":
+                	gp.playSE(2);
+                	speed += 2;
+                	gp.obj[i] = null;
+                	gp.ui.showMessage("You picked up a speed boost!");
+                	break;
+                case "Chest":
+                	gp.ui.gameFinished = true;
+                	gp.stopMusic();
+                	gp.playSE(4);
+                	break;
+            }            
         }
     }
   

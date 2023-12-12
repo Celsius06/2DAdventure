@@ -22,7 +22,7 @@ public class TileManager {
         tile = new Tile[10];
         mapTileNum = new int[gp.maxWorldCol][gp.maxWorldRow];
         getTileImage();
-        loadMap("maps/world01.txt");//text to make map
+        loadMap("maps/world01.txt"); // Text to generate the map
     }
 
     public void getTileImage(){
@@ -35,7 +35,7 @@ public class TileManager {
 
             tile[2] = new Tile();
             tile[2].image = ImageIO.read(new File("res/tile/water1.png"));
-            tile[2].collision = true; // Dòng này để ngăn không cho player đi xuyên qua vật thể
+            tile[2].collision = true; // This line is to prevent the player from going through the object
                                       // Remember if the tile YOU want to be collided, move this code to the that tile, AND REMEMBER TO CHANGE the number in tile[...]
             tile[3] = new Tile();
             tile[3].image = ImageIO.read(new File("res/tile/wall.png"));

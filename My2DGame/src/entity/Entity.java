@@ -1,4 +1,4 @@
-// Entity này sẽ là parent class
+// This entity will be the parent class
 package entity;
 
 import java.awt.Rectangle;
