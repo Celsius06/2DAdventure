@@ -1,2 +1,2 @@
-# 2DGame_test
-Test space for my 2D-based game
+# FirstGame_2D
+The adventure of Frogi the Frost King
