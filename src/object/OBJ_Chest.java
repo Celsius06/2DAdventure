@@ -1,16 +1,13 @@
 package object;
 
-import java.io.File;
-import java.io.IOException;
-import javax.imageio.ImageIO;
+import entity.Entity;
+import main.GamePanel;
 
-public class OBJ_Chest extends SuperObject {
-    public OBJ_Chest () {
+public class OBJ_Chest extends Entity{
+    public OBJ_Chest (GamePanel gp) {
+        super(gp);
+
         name = "Chest";
-        try {
-            image = ImageIO.read(new File("res/objects/chest.png")); // Using getResourceAsStream when running code will get error
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        down1 = setup("res/objects/mapobject/chest", gp.tileSize, gp.tileSize); 
     }
 }

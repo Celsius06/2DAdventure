@@ -1,18 +1,22 @@
 package object;
 
-import java.io.File;
-import java.io.IOException;
-import javax.imageio.ImageIO;
+import entity.Entity;
+import main.GamePanel;
 
-public class OBJ_Door extends SuperObject {
-    public OBJ_Door () {
+public class OBJ_Door extends Entity {    
+    public OBJ_Door (GamePanel gp) {
+        super(gp);
+    
         name = "Door";
-        try {
-            image = ImageIO.read(new File("res/objects/door.png")); // Using getResourceAsStream when running code will get error
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        collision = true; // The player cannot go though this object
+        down1 = setup("res/objects/mapobject/door", gp.tileSize, gp.tileSize);
+        collision = true;   // The player cannot go though this object
+
+        solidArea.x = 0;
+        solidArea.y = 16;
+        solidArea.width = 48;
+        solidArea.height = 32;
+        solidAreaDefaultX = solidArea.x;
+        solidAreaDefaultY = solidArea.y;
     }
 }
 

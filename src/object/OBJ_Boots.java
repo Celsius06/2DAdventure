@@ -1,18 +1,19 @@
 package object;
 
-import java.io.File;
-import java.io.IOException;
-import javax.imageio.ImageIO;
+import entity.Entity;
+import main.GamePanel;
 
-public class OBJ_Boots extends SuperObject {
-	public OBJ_Boots () {
-		name = "Boots";
-	        try {
-	            image = ImageIO.read(new File("res/objects/socks.png")); 
-	            // getResourceAsStream is an old structure so it may cause errors
-	        } catch (IOException e) {									 
-	            e.printStackTrace();
-	        }
-	}
+
+public class OBJ_Boots extends Entity{
+
+
+    public OBJ_Boots (GamePanel gp) {
+        super(gp);
+        name = "Boots";
+        down1 = setup("res/objects/items/socks", gp.tileSize, gp.tileSize);
+        description = "[" + name + "]\nA Pair of X-mas Boots";
+        
+        price = 10;
+    }
 }
 

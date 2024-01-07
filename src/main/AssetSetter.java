@@ -1,6 +1,18 @@
 package main;
 
-import object.*;
+import entity.*;
+import monster.MON_PolarBear;
+import object.OBJ_Axe;
+import object.OBJ_Coin_Gold;
+// import object.*;
+import object.OBJ_Door;
+import object.OBJ_Heart;
+import object.OBJ_Key;
+import object.OBJ_ManaCrystal;
+import object.OBJ_Potion_Red;
+import object.OBJ_Shield_Diamond;
+import object.OBJ_Shield_Metal;
+import tile_interactive.IT_DryTree;
 
 public class AssetSetter {
     GamePanel gp;
@@ -8,39 +20,106 @@ public class AssetSetter {
         this.gp = gp;
     }
 
-    public void setObject () {
-        gp.obj[0] = new OBJ_Key();
-        gp.obj[0].worldX = 23 * gp.tileSize; // X coordinate of the object in the matrix (column)  
-        gp.obj[0].worldY = 26 * gp.tileSize; // Y coordinate of the object in the matrix (row)
-                                             // This key is declared at (x;y) = (23;26)
-                                             // The actual location of this object in the matrix will be the declared location + 1
-                                             // => Actual (x;y) = (24;27)
-        gp.obj[1] = new OBJ_Key();
-        gp.obj[1].worldX = 24 * gp.tileSize; 
-        gp.obj[1].worldY = 12 * gp.tileSize;
+    public void setObject () {	
+    	int mapNum = 0;
+        int i = 0;
+        gp.obj[mapNum][i] = new OBJ_Door(gp);
+        gp.obj[mapNum][i].worldX = gp.tileSize*20;
+        gp.obj[mapNum][i].worldY = gp.tileSize*23;
+        i++;
+        gp.obj[mapNum][i] = new OBJ_Key(gp);
+        gp.obj[mapNum][i].worldX = gp.tileSize*21;
+        gp.obj[mapNum][i].worldY = gp.tileSize*23;
+        i++;
+        gp.obj[mapNum][i] = new OBJ_Shield_Metal(gp);
+        gp.obj[mapNum][i].worldX = gp.tileSize*22;
+        gp.obj[mapNum][i].worldY = gp.tileSize*23;
+        i++;
+        gp.obj[mapNum][i] = new OBJ_Shield_Diamond(gp);
+        gp.obj[mapNum][i].worldX = gp.tileSize*23;
+        gp.obj[mapNum][i].worldY = gp.tileSize*23;
+        i++;
+        gp.obj[mapNum][i] = new OBJ_Axe(gp);
+        gp.obj[mapNum][i].worldX = gp.tileSize*24;
+        gp.obj[mapNum][i].worldY = gp.tileSize*23;
+        i++;
+        gp.obj[mapNum][i] = new OBJ_Potion_Red(gp);
+        gp.obj[mapNum][i].worldX = gp.tileSize*25;
+        gp.obj[mapNum][i].worldY = gp.tileSize*23;
+        i++;
+        gp.obj[mapNum][i] = new OBJ_Coin_Gold(gp);
+        gp.obj[mapNum][i].worldX = gp.tileSize*26;
+        gp.obj[mapNum][i].worldY = gp.tileSize*23;
+        i++;
+        gp.obj[mapNum][i] = new OBJ_Coin_Gold(gp);
+        gp.obj[mapNum][i].worldX = gp.tileSize*27;
+        gp.obj[mapNum][i].worldY = gp.tileSize*23;
+        i++;
+        gp.obj[mapNum][i] = new OBJ_Heart(gp);
+        gp.obj[mapNum][i].worldX = gp.tileSize*28;
+        gp.obj[mapNum][i].worldY = gp.tileSize*23;
+        i++;
+        gp.obj[mapNum][i] = new OBJ_ManaCrystal(gp);
+        gp.obj[mapNum][i].worldX = gp.tileSize*29;
+        gp.obj[mapNum][i].worldY = gp.tileSize*23;
+        i++;
+    }
+    
+    public void setNPC () {
+    	// MAP 1
+    	int mapNum = 0;
+    	int i = 0;
+    	gp.npc[mapNum][i] = new NPC_Santa(gp);
+    	gp.npc[mapNum][i].worldX = gp.tileSize * 21;
+    	gp.npc[mapNum][i].worldY = gp.tileSize * 21;
+    	
+    	// MAP 2
+    	mapNum = 1;
+    	i = 0;
+    	gp.npc[mapNum][i] = new NPC_Merchant(gp);
+    	gp.npc[mapNum][i].worldX = gp.tileSize * 12;
+    	gp.npc[mapNum][i].worldY = gp.tileSize * 7;
+    }
+
+    public void setMonster(){
+        int mapNum = 0; 
+        int i = 0;
+        gp.monster[mapNum][i] = new MON_PolarBear(gp);
+        gp.monster[mapNum][i].worldX = gp.tileSize * 23;
+        gp.monster[mapNum][i].worldY = gp.tileSize * 23;
+        i++;
+        gp.monster[mapNum][i] = new MON_PolarBear(gp);
+        gp.monster[mapNum][i].worldX = gp.tileSize * 28;
+        gp.monster[mapNum][i].worldY = gp.tileSize * 28;
+        i++;
+        gp.monster[mapNum][i] = new MON_PolarBear(gp);
+        gp.monster[mapNum][i].worldX = gp.tileSize * 25;
+        gp.monster[mapNum][i].worldY = gp.tileSize * 28;
+        i++;
+        gp.monster[mapNum][i] = new MON_PolarBear(gp);
+        gp.monster[mapNum][i].worldX = gp.tileSize * 16;
+        gp.monster[mapNum][i].worldY = gp.tileSize * 20;
+        i++;
         
-        gp.obj[2] = new OBJ_Key();
-        gp.obj[2].worldX = 27 * gp.tileSize; 
-        gp.obj[2].worldY = 10 * gp.tileSize;
+//      mapNum = 1; //Spawn monster in the second map
+//      gp.monster[mapNum][i] = new MON_PolarBear(gp);
+//      gp.monster[mapNum][i].worldX = gp.tileSize * 16;
+//      gp.monster[mapNum][i].worldY = gp.tileSize * 20;
+//      i++;
+    }
+    
+    public void setInteractiveTile() {
+    	int mapNum = 0; 
+    	int i = 0;
+    	gp.iTile[mapNum][i] = new IT_DryTree(gp, 26, 24); i++;
+    	gp.iTile[mapNum][i] = new IT_DryTree(gp, 27, 24); i++;
+	    gp.iTile[mapNum][i] = new IT_DryTree(gp, 28, 24); i++;	
+	    gp.iTile[mapNum][i] = new IT_DryTree(gp, 29, 24); i++;	 
+	    gp.iTile[mapNum][i] = new IT_DryTree(gp, 30, 24); i++;	
+	    gp.iTile[mapNum][i] = new IT_DryTree(gp, 31, 24); i++;	
+	    gp.iTile[mapNum][i] = new IT_DryTree(gp, 32, 24); i++;
+	    gp.iTile[mapNum][i] = new IT_DryTree(gp, 33, 24); i++;
 
-        gp.obj[3] = new OBJ_Door();
-        gp.obj[3].worldX = 28 * gp.tileSize; 
-        gp.obj[3].worldY = 11 * gp.tileSize;
-
-        gp.obj[4] = new OBJ_Door();
-        gp.obj[4].worldX = 26 * gp.tileSize; 
-        gp.obj[4].worldY = 25 * gp.tileSize;
-
-        gp.obj[5] = new OBJ_Door();
-        gp.obj[5].worldX = 24 * gp.tileSize; 
-        gp.obj[5].worldY = 25 * gp.tileSize;
-
-        gp.obj[6] = new OBJ_Chest();
-        gp.obj[6].worldX = 28 * gp.tileSize; 
-        gp.obj[6].worldY = 16 * gp.tileSize;        
-        
-        gp.obj[7] = new OBJ_Boots();
-        gp.obj[7].worldX = 38 * gp.tileSize; 
-        gp.obj[7].worldY = 7 * gp.tileSize;        
-    }   
+    }
 }
+
