@@ -405,7 +405,7 @@ public class UI {
 			g2.drawString(text, x, y);
 			
 			if(commandNum  ==  2){
-				g2.drawString(">",x - gp.tileSize,y); // we can use drawImage instead of draw String if we want
+				g2.drawString(">",x - gp.tileSize,y); 	// we can use drawImage instead of draw String if we want
 			}
 		}
 		
