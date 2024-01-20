@@ -1,9 +1,5 @@
 package main;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
@@ -12,6 +8,10 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 
 import entity.Entity;
 import object.OBJ_Coin_Gold;
@@ -59,9 +59,7 @@ public class UI {
 		crystal_full = crystal.image;
 		crystal_blank = crystal.image2;
 		Entity goldCoin = new OBJ_Coin_Gold(gp);
-		coin = goldCoin.down1;
-		
-		
+		coin = goldCoin.down1;				
 	}
 
 	public void addMessage(String text) {
@@ -114,6 +112,10 @@ public class UI {
 		if(gp.gameState == gp.tradeState){
 			drawTradeScreen();
 		}		
+		// SLEEP STATE
+		if(gp.gameState == gp.sleepState){
+			drawSleepScreen();
+		}	
 	}
 	
 	public void drawTradeScreen() {
@@ -124,7 +126,9 @@ public class UI {
 		}
 		gp.keyH.enterPressed = false;
 	}
+	
 	public void trade_select() {
+		npc.dialogueSet = 0;
 		drawDialogueScreen();
 		// DRAW SELECTION WINDOW
 		int x = gp.tileSize * 15;
@@ -156,8 +160,8 @@ public class UI {
 			g2.drawString(">", x-24, y);
 			if (gp.keyH.enterPressed == true) {
 				commandNum = 0;
-				gp.gameState = gp.dialogueState;
-				currentDialogue = "Come again. Hehe!";
+				npc.startDialogue(npc,1);
+
 			}
 		}
 	}
@@ -198,19 +202,18 @@ public class UI {
  			if (gp.keyH.enterPressed == true) {
  				if (npc.inventory.get(itemIndex).price > gp.player.coin) {
  					subState = 0;
- 					gp.gameState = gp.dialogueState;
- 					currentDialogue = "Not enough coins!";
- 					drawDialogueScreen();
+					npc.startDialogue(npc,2);
  				}
- 				else if (gp.player.inventory.size() == gp.player.maxInventorySize) {
- 					subState = 0;
- 					gp.gameState = gp.dialogueState;
- 					currentDialogue = "You cannot carry any more!";
- 				}
- 				else {
- 					gp.player.coin -= npc.inventory.get(itemIndex).price;
- 					gp.player.inventory.add(npc.inventory.get(itemIndex));
- 				}
+				else{
+					if(gp.player.canObtainItem(npc.inventory.get(itemIndex))== true){
+						gp.player.coin -= npc.inventory.get(itemIndex).price;
+
+					}
+					else{
+							subState = 0;
+							npc.startDialogue(npc,3);
+					}
+				}
  			}
 		}
 	}
@@ -238,7 +241,7 @@ public class UI {
 		// DRAW PRICE WINDOW
 		int itemIndex = getItemIndexOnSlot(playerSlotCol, playerSlotRow);
 		if (itemIndex < gp.player.inventory.size()) {
-			x = (int)(gp.tileSize * 15.5);
+			x = (int)(gp.tileSize * 5.5);
 			y = (int)(gp.tileSize * 5.5);
 			width = (int)(gp.tileSize * 2.5);
 			height = gp.tileSize;
@@ -246,7 +249,7 @@ public class UI {
 			g2.drawImage(coin, x+10, y+8, 32, 32, null);
  			int price = gp.player.inventory.get(itemIndex).price/2;
  			String text = "" + price;
- 			x = getXforAlignToRightText(text, gp.tileSize * 18 - 20);
+ 			x = getXforAlignToRightText(text, gp.tileSize * 8 - 20);
  			g2.drawString(text, x, y+34);
  			
  		    // SELL AN ITEM
@@ -255,21 +258,47 @@ public class UI {
  					gp.player.inventory.get(itemIndex) == gp.player.currentShield) {
  						commandNum = 0;
  						subState = 0;
- 						gp.gameState = gp.dialogueState;
- 						currentDialogue = "You cannot sell an equipped item!"; 						
+						npc.startDialogue(npc,4);					
  				} else {
+					if(gp.player.inventory.get(itemIndex).amount>1){
+						gp.player.inventory.get(itemIndex).amount--;
+					}
+					// else{
+					// 	gp.player.inventory.remove(itemIndex);
+					// }
  					gp.player.inventory.remove(itemIndex);
  					gp.player.coin += price;
  				}
  			}
 		}
 	}	
+
+	public void drawSleepScreen() {
+		counter++;
+
+		if (counter < 120) {
+			gp.eManager.lighting.filterAlpha += 0.01f;
+			if (gp.eManager.lighting.filterAlpha > 1f) {
+				gp.eManager.lighting.filterAlpha = 1f;
+			}
+		}
+		if (counter >= 120) {
+			gp.eManager.lighting.filterAlpha -= 0.01f;
+			if (gp.eManager.lighting.filterAlpha < 0) {
+				gp.eManager.lighting.filterAlpha = 0f;
+				counter = 0;
+				gp.eManager.lighting.dayState = gp.eManager.lighting.day;
+				gp.gameState = gp.playState;
+				gp.player.getPlayerImage();
+			}
+		}
+	}
 	
 	public void drawTransition() {
 		counter++;
 		g2.setColor(new Color(0, 0, 0, counter * 5));
 		g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
-		if (counter == 50) {
+		if (counter == 50) {// the transition is done
 			counter = 0;
 			gp.gameState = gp.playState;
 			gp.currentMap = gp.eHandler.tempMap;
@@ -356,12 +385,12 @@ public class UI {
 	}
 	public void drawTitleScreen() {
 		if(titleScreenState  ==  0){
-			g2.setColor(new Color(0, 0, 0));
+			g2.setColor(new Color(0, 0, 63));
 			g2.fillRect(0, 0, gp.screenWidth, gp.screenHeight);
 
 			// TITLE NAME
 			g2.setFont(g2.getFont().deriveFont(Font.BOLD, 55F));	// NOT FINISH YET SINCE WE ARE NOT IMPORT FONT YET
-			String text = "Frost King Adventure"; 					// GAME TITLE
+			String text = "Frost King's tale"; 					// GAME TITLE
 			int x = getXforCenteredObject(text);
 			int y = gp.tileSize * 3;
 	
@@ -395,8 +424,8 @@ public class UI {
 			x = getXforCenteredObject(text);
 			y  +=  gp.tileSize;
 			g2.drawString(text, x, y);
-			
-			if(commandNum  ==  1){
+			 
+			if(commandNum  ==  1) { 
 				g2.drawString(">",x - gp.tileSize,y); 	// we can use drawImage instead of draw String if we want
 			}
 			text = "QUIT";
@@ -404,7 +433,7 @@ public class UI {
 			y  +=  gp.tileSize;
 			g2.drawString(text, x, y);
 			
-			if(commandNum  ==  2){
+			if(commandNum  ==  2) {
 				g2.drawString(">",x - gp.tileSize,y); 	// we can use drawImage instead of draw String if we want
 			}
 		}
@@ -472,6 +501,21 @@ public class UI {
 	    // SETTING FOR THE DIALOGUE  
 	    g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 28F));
 	    y += gp.tileSize;
+		if(npc.dialogues[npc.dialogueSet][npc.dialogueIndex] != null) {
+			currentDialogue = npc.dialogues[npc.dialogueSet][npc.dialogueIndex];
+			if(gp.keyH.enterPressed == true){
+				if(gp.gameState == gp.dialogueState){
+					npc.dialogueIndex++;
+					gp.keyH.enterPressed = false;
+				}
+			}
+		} else {		//If no text is in the array
+			npc.dialogueIndex = 0;
+			if(gp.gameState == gp.dialogueState) {
+				gp.gameState = gp.playState;
+			}
+		}
+
 	    FontMetrics fontMetrics = g2.getFontMetrics();
 	    String[] words = currentDialogue.split("\\s+");
 	    StringBuilder line = new StringBuilder();
@@ -635,12 +679,34 @@ public class UI {
 		for(int i = 0; i < entity.inventory.size(); i++){
 			//EQUIP CURSOR
 			if(entity.inventory.get(i) == entity.currentWeapon || 
-					entity.inventory.get(i) == entity.currentShield){
+					entity.inventory.get(i) == entity.currentShield || 
+					entity.inventory.get(i) == entity.currentLight){
 					g2.setColor(new Color(240, 190, 90));
 					g2.fillRoundRect(slotX, slotY, gp.tileSize, gp.tileSize, 10, 10);
 			}
 			g2.drawImage(entity.inventory.get(i).down1, slotX, slotY, null);
+
+				//DISPLAY AMOUNT
+			if(entity==gp.player && entity.inventory.get(i).amount >1){
+				g2.setFont(g2.getFont().deriveFont(32f));
+				int amountX;
+				int amountY;
+				String s =" " + entity.inventory.get(i).amount;
+				amountX = getXforAlignToRightText(s, slotX + 44);
+				amountY= slotY + gp.tileSize;
+
+				//SHADOW
+				g2.setColor(new Color(60,60,60));
+				g2.drawString(s,amountX,amountY);
+				//Number
+				g2.setColor(Color.white);
+				g2.drawString(s,amountX-3,amountY-3);
+			}
+
+
 			slotX += slotSize;
+
+			
 			if(i == 4 || i == 9 || i == 14){ 			// The final number based on the last column 
 				slotX = slotXstart;
 				slotY += slotSize;
@@ -860,21 +926,24 @@ public class UI {
 		textY += gp.tileSize;
 		g2.drawString("Move", textX, textY);
 		textY += gp.tileSize;
-		g2.drawString("Confirm/Attack", textX, textY);
+		g2.drawString("Confirm", textX, textY);
+		textY += gp.tileSize;
+		g2.drawString("Attack", textX, textY);
 		textY += gp.tileSize;
 		g2.drawString("Shoot/Cast", textX, textY);
 		textY += gp.tileSize;
-		g2.drawString("Character Screen", textX, textY);
+		g2.drawString("Inventory", textX, textY);
 		textY += gp.tileSize;
 		g2.drawString("Pause", textX, textY);
 		textY += gp.tileSize;
 		g2.drawString("Options", textX, textY);
 		textY += gp.tileSize;		
 		
-		textX = frameX + gp.tileSize * 6;
+		textX = frameX + (int)(gp.tileSize * 5.5);
 		textY = frameY + gp.tileSize * 2;
 		g2.drawString("WASD", textX, textY); textY += gp.tileSize;	
 		g2.drawString("ENTER", textX, textY); textY += gp.tileSize;	
+		g2.drawString("LMOUSE", textX, textY); textY += gp.tileSize;	
 		g2.drawString("E", textX, textY); textY += gp.tileSize;	
 		g2.drawString("G", textX, textY); textY += gp.tileSize;	
 		g2.drawString("P", textX, textY); textY += gp.tileSize;	
@@ -911,7 +980,10 @@ public class UI {
 			g2.drawString(">", textX-25, textY);
 			if (gp.keyH.enterPressed == true) {
 				subState = 0;
-				commandNum = 4;
+				gp.gameState = gp.titleState;
+				titleScreenState = 0;
+				gp.stopMusic();
+				
 			}
 		}
 		

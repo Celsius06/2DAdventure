@@ -10,10 +10,10 @@ public class OBJ_Shield_Diamond extends Entity {
         type = type_shield;
         name = "Diamond Shield";
         down1 = setup("res/objects/shield/shield_diamond_test", gp.tileSize, gp.tileSize);
-        defenseValue = 3;
+        defenseValue = 2;
         description = "[" + name + "]\nA Diamond Shield with \nbetter Defense";
         
-        price = 10;
+        price = 200;
     }
     
 }

@@ -3,6 +3,7 @@ package main;
 import entity.Entity;
 
 import entity.Player;
+import environment.EnvironmentManager;
 import tile.TileManager;
 import tile_interactive.InteractiveTile;
 
@@ -21,10 +22,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JPanel;
 
-import ai.PathFinder;
 
-// @SuppressWarnings("serial"): This line is modified to remove the warning when opening this file with Eclipse, can delete if not needed
-   @SuppressWarnings("serial")
+import ai.PathFinder;
+import data.SaveLoad;
+
+@SuppressWarnings("serial")
 
 public class GamePanel extends JPanel implements Runnable {  // JPanel is the subclass of GamePanel	
 	// SCREEN SETTING
@@ -53,6 +55,7 @@ public class GamePanel extends JPanel implements Runnable {  // JPanel is the su
     
     //FPS: Frame per second
     int FPS = 60;
+    //SYSTEM
     public TileManager tileM = new TileManager(this);
     public KeyHandler keyH = new KeyHandler(this);
     Sound music = new Sound();
@@ -61,9 +64,13 @@ public class GamePanel extends JPanel implements Runnable {  // JPanel is the su
     public AssetSetter aSetter = new AssetSetter(this);
     public UI ui = new UI(this);
     public EventHandler eHandler = new EventHandler(this);
-    Thread gameThread;
     Config config = new Config(this);    
     public PathFinder pFinder = new PathFinder(this);
+    EnvironmentManager eManager= new EnvironmentManager(this);
+    SaveLoad saveLoad = new SaveLoad(this);
+    Thread gameThread;
+    
+    
 
     // ENTITY AND OBJECTS
     public Player player = new Player(this, keyH);
@@ -74,9 +81,10 @@ public class GamePanel extends JPanel implements Runnable {  // JPanel is the su
     //Set the monster
     public Entity monster[][] = new Entity[maxMap][20];
     //InteractiveTile List
-    public InteractiveTile iTile[][] = new InteractiveTile[maxMap][50];
+    public InteractiveTile iTile[][] = new InteractiveTile[maxMap][1000];
     //Projectile List
-    public ArrayList<Entity> projectileList = new ArrayList<>();     
+    public Entity [][] projectile = new Entity[maxMap][20];
+    //public ArrayList<Entity> projectileList = new ArrayList<>();     
     //Entity List
     ArrayList<Entity> entityList = new ArrayList<>();
     //Particle List
@@ -93,6 +101,15 @@ public class GamePanel extends JPanel implements Runnable {  // JPanel is the su
     public final int gameOverState = 6;
     public final int transitionState = 7;
     public final int tradeState = 8;
+    public final int sleepState = 9;
+
+    //AREA 
+    public int currentArea;
+    public final int outside =50;
+    public final int dungeon =52;
+    public final int trading = 40;
+    public int nextArea;
+
     
     public GamePanel(){
         this.setPreferredSize(new Dimension(screenWidth,screenHeight)); // set the size for the class (JPanel)
@@ -108,31 +125,31 @@ public class GamePanel extends JPanel implements Runnable {  // JPanel is the su
         aSetter.setNPC();
         aSetter.setMonster();
         aSetter.setInteractiveTile();
+        eManager.setup();
 //      playMusic(0);
         gameState = titleState;
+
+        currentArea=outside;
+
         tempScreen = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_ARGB);
         g2 = (Graphics2D)tempScreen.getGraphics();
         if (fullScreenOn == true) {
         setFullScreen();
-     }
-}
-    
-    public void retry() {
-    	player.setDefaultPositions();
+    }
+}    
+    public void resetGame(boolean restart) {
+        player.setDefaultPositions();
     	player.restoreLifeAndMana();
+        player.resetCounter();
     	aSetter.setNPC();
     	aSetter.setMonster();
-    }
-    
-    public void restart() {
-    	player.setDefaultValues();
-    	player.setDefaultPositions();
-    	player.restoreLifeAndMana();
-    	player.setItems();
-    	aSetter.setObject();
-        aSetter.setNPC();
-        aSetter.setMonster();
-        aSetter.setInteractiveTile();
+        if (restart == true) {
+            player.setDefaultValues();
+            aSetter.setObject();
+            aSetter.setInteractiveTile();
+            ui.titleScreenState = 0; //I added this in order to fix the gameover
+            ui.commandNum = -1; //I added this in order to fix the gameover
+        }
     }
     
     public void setFullScreen() {
@@ -154,7 +171,7 @@ public class GamePanel extends JPanel implements Runnable {  // JPanel is the su
     // GAME LOOP
     @Override
     public void run() {
-        double drawInterval = 1_000_000_000 / FPS;
+        double drawInterval = 1000000000 / FPS;
         double delta = 0;
         long lastTime = System.nanoTime();
         long currentTime;
@@ -198,13 +215,13 @@ public class GamePanel extends JPanel implements Runnable {  // JPanel is the su
                 }
             }
             
-            for(int i = 0; i < projectileList.size(); i++) {
-                if(projectileList.get(i) != null){
-                    if(projectileList.get(i).alive == true){
-                        projectileList.get(i).update();
+            for(int i = 0; i < projectile [1].length; i++) {
+                if(projectile [currentMap][i] != null){
+                    if(projectile [currentMap][i].alive == true){
+                        projectile [currentMap][i].update();
                     }
-                    if(projectileList.get(i).alive == false){
-                        projectileList.remove(i);
+                    if(projectile [currentMap][i].alive == false){
+                        projectile [currentMap][i]=null;
                     }
                 }
             }
@@ -225,6 +242,7 @@ public class GamePanel extends JPanel implements Runnable {  // JPanel is the su
            		 iTile[currentMap][i].update();
            	 }
            }
+           eManager.update();
         }        
         
         if (gameState == pauseState){
@@ -253,7 +271,7 @@ public class GamePanel extends JPanel implements Runnable {  // JPanel is the su
             		iTile[currentMap][i].draw(g2);
             	}
             }
-            
+                                                                    
             // ADD ENTITY TO THE LIST
             entityList.add(player);
             //for entity of npc
@@ -275,9 +293,9 @@ public class GamePanel extends JPanel implements Runnable {  // JPanel is the su
                 }
             }
             //for projectile
-            for(int i = 0; i < projectileList.size(); i++){
-                if(projectileList.get(i) != null){
-                    entityList.add(projectileList.get(i));
+            for(int i = 0; i <  projectile [1].length; i++){
+                if((projectile [currentMap][i] != null)){
+                    entityList.add((projectile [currentMap][i]));
                 }
             }
             //for particle
@@ -304,6 +322,8 @@ public class GamePanel extends JPanel implements Runnable {  // JPanel is the su
             for(int i = 0; i < entityList.size(); i++){
                 entityList.clear();
             }
+            //ENVIROMENT
+            eManager.draw(g2); // need to behind ui since ui as always behind the darkness filter 
             //UI
             ui.draw(g2);
                     
@@ -355,6 +375,23 @@ public class GamePanel extends JPanel implements Runnable {  // JPanel is the su
     public void playSE (int i) {		// SFX
     	se.setFile(i);
     	se.play();
+    }
+    public void changeArea(){
+        if(nextArea != currentArea){
+            
+            stopMusic();
+            if(nextArea == outside){
+                playMusic(0);
+            }
+            if(nextArea == dungeon){
+                playMusic(19);
+            }
+            if(nextArea == trading){
+                playMusic(20);
+            }
+        }
+        currentArea=nextArea;
+        aSetter.setMonster();
     }
 }
 

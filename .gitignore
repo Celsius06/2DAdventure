@@ -36,3 +36,10 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+config.txt
+*.class
+
+out/2DGame_test/main/UI.class
+
+*.class

@@ -15,14 +15,14 @@ public class Sound {
 	
 	public Sound() {
 		// getClass().getResource will cause errors since this structure is old
-		soundFile[0] = new File("res/sound/BackgroundMusic/Cats.wav");	
+		soundFile[0] = new File("res/sound/BackgroundMusic/Path_to_Lakeland.wav");	
 		soundFile[1] = new File("res/sound/coin.wav");
 		soundFile[2] = new File("res/sound/powerup.wav");
 		soundFile[3] = new File("res/sound/unlock.wav");
 		soundFile[4] = new File("res/sound/fanfare.wav");
 		soundFile[5] = new File("res/sound/Sword/KatanaHit.wav");
 		soundFile[6] = new File("res/sound/OOF.wav");
-		soundFile[7] = new File("res/sound/bear_polar.wav");
+		soundFile[7] = new File("res/sound/Meme/Monster_death_sound.wav");
 		soundFile[8] = new File("res/sound/Rank_up.wav");
 		soundFile[9] = new File("res/sound/Option/Hover.wav");
 		soundFile[10] = new File("res/sound/Option/StoreOpen.wav");
@@ -33,6 +33,9 @@ public class Sound {
 		soundFile[15] = new File("res/sound/cuttree.wav");
 		soundFile[16] = new File("res/sound/gameover.wav");
 		soundFile[17] = new File("res/sound/stairs.wav");
+		soundFile[18] = new File("res/sound/Sleep/sleep.wav");
+		soundFile[19] = new File("res/sound/Dungeon.wav");
+		soundFile[20] = new File("res/sound/Local Forecast - Elevator.wav");
 	}
 	
 	public void setFile(int i) {

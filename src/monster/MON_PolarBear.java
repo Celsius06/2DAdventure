@@ -17,6 +17,8 @@ public class MON_PolarBear extends Entity {
         this.gp = gp;
         type = type_monster;
         name = "Polar Bear";
+		defaultSpeed=1;
+		speed=defaultSpeed;
         getImage();
         speed = 1;
         maxLife = 12;
@@ -26,59 +28,47 @@ public class MON_PolarBear extends Entity {
         exp = 2;
         projectile = new OBJ_Rock(gp);	
         
-        solidArea.x = 6;
-        solidArea.y = 6;
-        solidArea.width = 6*2;
-        solidArea.height = 6;
+        int size = 1*gp.tileSize;
+        solidArea.x = 0;
+        solidArea.y = 10;
+        solidArea.width = size;
+        solidArea.height = size - 20;
         solidAreaDefaultX = solidArea.x;
         solidAreaDefaultY = solidArea.y;
 
     }
-
+    int i = 2;
     public void getImage(){
-       up1 = setup("res/monster/Bear_up1", gp.tileSize, gp.tileSize);
-       up2 = setup("res/monster/Bear_up2", gp.tileSize, gp.tileSize);
-       down1 = setup("res/monster/Bear_down2", gp.tileSize, gp.tileSize);
-       down2 = setup("res/monster/Bear_down3", gp.tileSize, gp.tileSize);
-       left1 = setup("res/monster/Bear_left2", gp.tileSize, gp.tileSize);
-       left2 = setup("res/monster/Bear_left3", gp.tileSize, gp.tileSize);
-       right1 = setup("res/monster/Bear_right1", gp.tileSize, gp.tileSize);
-       right2 = setup("res/monster/Bear_right2", gp.tileSize, gp.tileSize);
+       up1 = setup("res/monster/Bear_up1", i*gp.tileSize, i*gp.tileSize);
+       up2 = setup("res/monster/Bear_up2", i*gp.tileSize, i*gp.tileSize);
+       down1 = setup("res/monster/Bear_down2", i*gp.tileSize, i*gp.tileSize);
+       down2 = setup("res/monster/Bear_down3", i*gp.tileSize, i*gp.tileSize);
+       left1 = setup("res/monster/Bear_left2", i*gp.tileSize, i*gp.tileSize);
+       left2 = setup("res/monster/Bear_left3", i*gp.tileSize, i*gp.tileSize);
+       right1 = setup("res/monster/Bear_right1", i*gp.tileSize, i*gp.tileSize);
+       right2 = setup("res/monster/Bear_right2", i*gp.tileSize, i*gp.tileSize);
     }
 
+    
+
     public void setAction() {
-    	if (onPath == true) {
-    		int goalCol = (gp.player.worldX + gp.player.solidArea.x) / gp.tileSize;
-    		int goalRow = (gp.player.worldY + gp.player.solidArea.y) / gp.tileSize;
-    		searchPath(goalCol, goalRow);    		    		
-    		int i = new Random().nextInt(200)+1;
-    		if (i < 199 && projectile.alive == false && shotAvailableCounter == 30) {
-    			projectile.set(worldX, worldY, direction, true, this);
-    			gp.projectileList.add(projectile);
-    			shotAvailableCounter = 0;
-    		}
-    	} 
-    	else {
-        	actionLockCounter++;
-        	if (actionLockCounter == 120) {
-    	    	Random random = new Random();
-    	    	int i = random.nextInt(100)+1;
-    	    	// Pick up a number from 1 to 100
-    	    	if (i <= 25) {
-    	    		direction = "up";
-    	    	}
-    	    	if (i > 25 && i <= 50) {
-    	    		direction = "down";
-    	    	}
-    	    	if (i > 50 && i <= 75) {
-    	    		direction = "left";
-    	    	}
-    	    	if (i > 75 && i <= 100) {
-    	    		direction = "right";
-    	    	}
-    	    	actionLockCounter = 0;
-    	    }	
-    	} 
+		if (onPath == true) {
+			// If the polar bear is on a path and the player is more than 8 tiles away, the polar bear would stop following the path.
+			checkStopChasingOrNot(gp.player, 20 , 100);
+			
+			//search the direction to go
+    		searchPath(getGoalCol(gp.player), getGoalRow(gp.player));    
+
+			//Check if 	it shoots a projectile	
+			checkShootOrNot(200, 30); // when the bear is near to the player (Path == true), its speed increases by 1 (1+1 = 2)
+		}else {
+			//check if it starts chasing
+			checkStartChasingOrNot(gp.player, 10, 100);
+			speed = 1;
+			 //when the bear is outrange the player, its speed is back to normal
+			//Get a random direction
+			getRandomDirection();
+		}
     }
     
     // when bear gets dmg, it runs away
@@ -102,22 +92,5 @@ public class MON_PolarBear extends Entity {
     	if (i >= 75 && i < 100) {
     		dropItem(new OBJ_ManaCrystal(gp));
     	}
-    }
-    
-    public void update() {
-    	super.update();
-    	int xDistance = Math.abs(worldX - gp.player.worldX);
-    	int yDistance = Math.abs(worldY - gp.player.worldY);
-    	int tileDistance = (xDistance + yDistance) / gp.tileSize;
-    	if (onPath == false && tileDistance < 5) {
-    		int i = new Random().nextInt(100)+1;
-    		if (i > 50) {
-    			onPath = true;
-    		}    		
-    	}
-    	// If the polar bear is on a path and the player is more than 8 tiles away, the polar bear would stop following the path.
-    	if (onPath == true && tileDistance > 8) {
-    		onPath = false;
-    	}
-    }
+    }        
 }
